@@ -59,6 +59,7 @@ const HomeScreen = ({ navigation }) => {
         <View>
           <Button
             title="Add to favorites"
+            color={"#005407"}
             onPress={() => handleAddToFavorites(item)}
           />
         </View>

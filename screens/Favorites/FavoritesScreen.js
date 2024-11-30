@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Alert, Button } from 'react-native';
 import { getAuth } from 'firebase/auth';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebase/database';
 
 const FavoritesScreen = () => {
@@ -39,12 +39,32 @@ const FavoritesScreen = () => {
     return () => unsubscribe();
   }, []);
 
+  const removeFavorite = async (id) => {
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+
+      if (!user) {
+        Alert.alert("Error", "You must be logged in to remove favorites.");
+        return;
+      }
+
+      const favoriteDocRef = doc(db, "users", user.uid, "favorites", id);
+      await deleteDoc(favoriteDocRef);
+      Alert.alert("Success", "Event removed from favorites.");
+    } catch (error) {
+      console.log("Error removing favorite: ", error);
+      Alert.alert("Error", "Could not remove event from favorites.");
+    }
+  };
+
   const renderItem = ({ item }) => (
     <View style={styles.favoriteItem}>
       <Text style={styles.eventName}>{item.eventName}</Text>
       <Text style={styles.eventDate}>Date: {item.eventDate}</Text>
       <Text style={styles.eventTime}>Time: {item.eventTime}</Text>
       <Text style={styles.eventAuthor}>Conducted by: {item.name}</Text>
+      <Button color="#005407" title="Remove" onPress={() => removeFavorite(item.id)} />
     </View>
   );
 
