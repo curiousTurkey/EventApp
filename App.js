@@ -13,6 +13,7 @@ import AddEventScreen from './screens/AddEvent/AddEventScreen'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import UserEventsScreen from "./screens/UserEvents/UserEvents";
 import { userSignOut } from "./firebase/database";
+import FavoritesScreen from "./screens/Favorites/FavoritesScreen";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -65,6 +66,16 @@ export default function App() {
             }}
             name="My Events"
             component={UserEventsScreen}
+          />
+          <Tab.Screen
+            options={{
+              tabBarIcon: ({ color, size }) => {
+                return <FontAwesome name="star" size={size} color={color} />;
+              },
+              headerShown: true
+            }}
+            name="Favorites"
+            component={FavoritesScreen}
           />
         </Tab.Navigator>
       ) : (

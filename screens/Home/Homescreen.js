@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, Button, Alert } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-import { collection, getDocs , onSnapshot} from 'firebase/firestore';
+import { collection, doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../../firebase/database';
-
+import { getAuth } from 'firebase/auth';
 
 const HomeScreen = ({ navigation }) => {
   const [events, setEvents] = useState([]);
 
-  // Fetch events from Firebase when the component is mounted
   useEffect(() => {
     const unsubscribe = onSnapshot(
       collection(db, "events"),
@@ -23,12 +22,33 @@ const HomeScreen = ({ navigation }) => {
         console.log("Error listening to events: ", error);
       }
     );
-  
-    // Clean up the listener when the component unmounts
+
     return () => unsubscribe();
   }, []);
 
-  // Render each event item
+  const handleAddToFavorites = async (event) => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) {
+      Alert.alert("Error", "You must be logged in to add favorites.");
+      return;
+    }
+
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      const favoritesCollectionRef = collection(userDocRef, "favorites");
+      const favoriteDocRef = doc(favoritesCollectionRef, event.id);
+
+      await setDoc(favoriteDocRef, event);
+
+      Alert.alert("Success", `"${event.eventName}" has been added to your favorites.`);
+    } catch (error) {
+      console.error("Error adding to favorites: ", error);
+      Alert.alert("Error", "Could not add the event to favorites. Please try again.");
+    }
+  };
+
   const renderItem = ({ item }) => {
     return (
       <View style={styles.eventItem}>
@@ -36,6 +56,12 @@ const HomeScreen = ({ navigation }) => {
         <Text style={styles.eventDate}>Date: {item.eventDate}</Text>
         <Text style={styles.eventTime}>Time: {item.eventTime}</Text>
         <Text style={styles.eventAuthor}>Conducted by: {item.name}</Text>
+        <View>
+          <Button
+            title="Add to favorites"
+            onPress={() => handleAddToFavorites(item)}
+          />
+        </View>
       </View>
     );
   };
@@ -52,7 +78,7 @@ const HomeScreen = ({ navigation }) => {
       </TouchableOpacity>
 
       <FlatList
-      style={styles.flatList}
+        style={styles.flatList}
         data={events}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
@@ -65,13 +91,13 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start', // Keep the list at the top
+    justifyContent: 'flex-start',
     alignItems: 'center',
     backgroundColor: '#f0f0f0',
     padding: 10,
   },
   flatList: {
-    width: "95%"
+    width: '95%',
   },
   floatingButton: {
     position: 'absolute',
@@ -85,11 +111,11 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 5,
     elevation: 3,
-    zIndex: 999
+    zIndex: 999,
   },
   listContainer: {
     width: '100%',
-    paddingTop: 60, // To avoid overlap with the floating button
+    paddingTop: 60,
   },
   eventItem: {
     backgroundColor: '#fff',
@@ -118,7 +144,7 @@ const styles = StyleSheet.create({
   eventAuthor: {
     fontSize: 16,
     color: '#199501',
-  }
+  },
 });
 
 export default HomeScreen;
