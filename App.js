@@ -12,6 +12,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import AddEventScreen from './screens/AddEvent/AddEventScreen'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import UserEventsScreen from "./screens/UserEvents/UserEvents";
+import { userSignOut } from "./firebase/database";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -32,7 +33,7 @@ export default function App() {
   const Tab = createBottomTabNavigator();
   const HomeStack = () => {
     return (<Stack.Navigator initialRouteName="home">
-       <Stack.Screen name="home" component={HomeScreen} options={{ headerTitle: "Home",headerShown: true, headerRight: () => (<Button title="Logout" onPress={() => {}}/>)}}/>
+       <Stack.Screen name="home" component={HomeScreen} options={{ headerTitle: "Home",headerShown: true, headerRight: () => (<Button title="Logout" onPress={() => {userSignOut()}}/>)}}/>
        <Stack.Screen name="addevent" component={AddEventScreen} options={{headerShown: false, headerBackVisible: true}}/>
     </Stack.Navigator>)
   }

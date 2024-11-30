@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { addDoc, collection, doc, getFirestore, setDoc } from "firebase/firestore";
-import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword , updateProfile} from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword , updateProfile, signOut} from "firebase/auth";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDwaCrAHh1GUfqLvfkZ6PPHk14oAfRuWa8",
@@ -54,3 +54,12 @@ export async function addEvent(eventData) {
         console.log(error);
     }
 }
+export async function userSignOut() {
+    try {
+      await signOut(auth);
+      console.log("AFTER LOG OUT",getAuth().currentUser)
+      console.log("User signed out successfully");
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
+  }
