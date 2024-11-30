@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { addDoc, collection, doc, getFirestore, setDoc } from "firebase/firestore";
-import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword , updateProfile} from "firebase/auth";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDwaCrAHh1GUfqLvfkZ6PPHk14oAfRuWa8",
@@ -14,7 +14,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-
+console.log(auth)
 export {db};
 
 export async function signIn(email, password) {
@@ -29,14 +29,19 @@ export async function signUp(name,organization, email, password, ){
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         if(userCredential){
+            
             await setDoc(doc(db, "users", userCredential.user.uid), {
                 name: name,
                 organization: organization,
                 email: email
             });
             console.log("Doc created successfully")
+            await updateProfile(userCredential.user, {
+                displayName: name,
+              });
             return "success";
         }
+        
         return "failed"
     } catch (error) {
         console.log(error);

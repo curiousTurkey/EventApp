@@ -37,6 +37,7 @@ const AddEventScreen = () => {
     console.log("Name:", eventName);
     console.log("Date:", eventDate.toLocaleDateString());
     console.log("Time:", eventTime.toLocaleTimeString());
+    console.log("NAME",  getAuth().currentUser.displayName)
     const eventData = {
       eventName: eventName,
       eventDate: eventDate.toLocaleDateString(),
@@ -126,7 +127,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     padding: 20,
-    paddingTop: 40,
+    paddingTop: 80,
     backgroundColor: "#f9f9f9",
   },
   title: {

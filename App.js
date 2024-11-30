@@ -11,6 +11,7 @@ import HomeScreen from "./screens/Home/Homescreen";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import AddEventScreen from './screens/AddEvent/AddEventScreen'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import UserEventsScreen from "./screens/UserEvents/UserEvents";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -62,7 +63,7 @@ export default function App() {
               headerShown: true
             }}
             name="My Events"
-            component={AddEventScreen}
+            component={UserEventsScreen}
           />
         </Tab.Navigator>
       ) : (

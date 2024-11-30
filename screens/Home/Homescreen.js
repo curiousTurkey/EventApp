@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs , onSnapshot} from 'firebase/firestore';
 import { db } from '../../firebase/database';
 
 
@@ -10,17 +10,22 @@ const HomeScreen = ({ navigation }) => {
 
   // Fetch events from Firebase when the component is mounted
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "events"));
-        const events = querySnapshot.docs.map((doc) => ({id: doc.id, ...doc.data()}))
-        setEvents(events)
-      } catch (error) {
-        console.log('Error fetching events: ', error);
+    const unsubscribe = onSnapshot(
+      collection(db, "events"),
+      (querySnapshot) => {
+        const events = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setEvents(events);
+      },
+      (error) => {
+        console.log("Error listening to events: ", error);
       }
-    };
-
-    fetchEvents();
+    );
+  
+    // Clean up the listener when the component unmounts
+    return () => unsubscribe();
   }, []);
 
   // Render each event item
@@ -30,6 +35,7 @@ const HomeScreen = ({ navigation }) => {
         <Text style={styles.eventName}>{item.eventName}</Text>
         <Text style={styles.eventDate}>Date: {item.eventDate}</Text>
         <Text style={styles.eventTime}>Time: {item.eventTime}</Text>
+        <Text style={styles.eventAuthor}>Conducted by: {item.name}</Text>
       </View>
     );
   };
@@ -65,7 +71,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   flatList: {
-    width: "90%"
+    width: "95%"
   },
   floatingButton: {
     position: 'absolute',
@@ -79,6 +85,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 5,
     elevation: 3,
+    zIndex: 999
   },
   listContainer: {
     width: '100%',
@@ -108,6 +115,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#555',
   },
+  eventAuthor: {
+    fontSize: 16,
+    color: '#199501',
+  }
 });
 
 export default HomeScreen;
